@@ -13,23 +13,22 @@
 
 using namespace std;
 
-//const
 const int n = 10, d=2;
 
 // for testing and evaluating porpuses
-//int myArray[10][2] =
-//   {
-//       {1,1},
-//	   {2,2},
-//	   {3,3},
-//	   {4,4},
-//	   {5,5},
-//	   {6,6},
-//	   {7,7},
-//	   {8,8},
-//       {9,9},
-//	   {10,10}
-//   };
+int myArray[n][d] =
+   {
+       {1,1},
+	   {2,2},
+	   {3,3},
+	   {4,4},
+	   {5,5},
+	   {6,6},
+	   {7,7},
+	   {8,8},
+       {9,9},
+	   {10,10}
+   };
 
 float calculateDistance(int a[2], int b[2]){
 	cout << "sakis: " <<a[0] << "makis: " << a[1]<< endl;
@@ -70,7 +69,8 @@ int main() {
 			}
 	for ( int i = 0;  i < n-1; i++) {
 		for (int j = 0; j < d; j++) {
-			matrix[j] = X[i][j];
+		//	matrix[j] = X[i][j];
+			matrix[j] = myArray[i][j];
 		}
 		cout << "sakis prin fugei: " << matrix[0] << "makis prin fugei: " << matrix[1]  << endl;
 		distances[i] =  calculateDistance(matrix, vantagePoint );
