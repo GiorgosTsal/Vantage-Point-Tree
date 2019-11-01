@@ -53,7 +53,7 @@ float calculateDistance(int a[2], int b[2])
 // It considers the last element as pivot
 // and moves all smaller element to left of
 // it and greater elements to right
-int partition(int arr[], int l, int r)
+int partition(float arr[], int l, int r)
 {
     int x = arr[r], i = l;
     for (int j = l; j <= r - 1; j++) {
@@ -70,7 +70,7 @@ int partition(int arr[], int l, int r)
 // element in arr[l..r] using QuickSort
 // based method.  ASSUMPTION: ALL ELEMENTS
 // IN ARR[] ARE DISTINCT
-int kthSmallest(int arr[], int l, int r, int k)
+float kthSmallest(float arr[], int l, int r, int k)
 {
     // If k is smaller than number of
     // elements in array
@@ -117,7 +117,7 @@ int main()
     	idxOfmyArray[i] = i;
        }
 
-    float distances[n - 1];
+    float distances[n - 1], tempDistences[n-1];
     int idxOfdistances[n-1];
     int matrix[d];
     int vantagePoint[d];
@@ -132,6 +132,8 @@ int main()
             matrix[j] = myArray[i][j];
         }
         distances[i] = calculateDistance(matrix, vantagePoint);
+        tempDistences[i] = distances[i];
+
         cout << "TO distances [" << i << "] einai : "<< distances[i] << endl;
 
     //    cout << "Distances[" << i << "]: " << distances[i] << endl;
@@ -153,6 +155,7 @@ int main()
     int n1, n2;
     float median;
     //to find median na to kano me sunartisei pou na to epistrefei
+    //cout << setprecision(5);
     if (n % 2 == 0) {
         n1 = (n + 2) / 2;
         n2 = n / 2;
@@ -163,41 +166,55 @@ int main()
      //   cout << setprecision(2);
       //  cout << "n1:Median when k is even is " << kthSmallest(arr, 0, n - 1, n1) << endl;
        // cout << "n2:Median when k is even is " << kthSmallest(arr, 0, n - 1, n2) << endl;
-        median = (kthSmallest(idxOfdistances, 0, n - 1, n1) + kthSmallest(idxOfdistances, 0, n - 1, n2)) / 2.0;
+        median = (kthSmallest(tempDistences, 0, n - 1, n1) + kthSmallest(tempDistences, 0, n - 1, n2)) / 2.0;
 
         //cout << fixed;
-        cout << setprecision(2);
-    //    cout << "To median tou distances[] einai : " << median << endl; // einai to r
+      //  cout << setprecision(2);
+     //  cout << "To median tou distances[] einai : " << median << endl; // einai to r
     }
     else {
         //			int idx = floor(k/2);
-        //			k = 5
+
         //			cout << "idx: "<<idx <<endl;
         //			cout <<"k is: " << k <<endl;
-        median = kthSmallest(idxOfdistances, 0, n - 1, (n + 1) / 2);
-   //     cout << "Median when k is odd  is " << median;
+        median = kthSmallest(tempDistences, 0, n - 1, (n + 1) / 2.0);
+
+     //  cout << "Median when k is odd  is " << median << endl;
     }
 //    int idxOfMedian[]
 //    for (int i = 0; i < sizeof(median)/sizeof(median[0]); ++i) {
 //
 //	}
 
+
     int outer[n/2] , inner[n/2];
     int distancesLength = sizeof(distances)/sizeof(distances[0]);
-    cout << "To median tou distances[] pou ehei length " << distancesLength << " einai : " << median << endl;
+    cout << "To median tou distances[] pou ehei Population size " << distancesLength << " einai : " << median << endl;
     int idxOfdistancesLength = sizeof(idxOfdistances)/sizeof(idxOfdistances[0]);
+
+
+
+    for(int i=0; i<idxOfdistancesLength; i++){
+    	cout << "TO distances2 [" << i << "] einai : "<< distances[i] << endl;
+    }
+
+    int count_inner = 0 ;
+    int count_outter = 0 ;
     for (int i = 0;  i < idxOfdistancesLength; ++i) {
     //	int medianFloored = (int) floor(distances[median] + 0.5);
     	int medianFloor = floor(median);
     //	cout << "distances[median] = " << distances[medianFloor] << endl;
-    	if (idxOfdistances[i] >= medianFloor) {
-    		outer[i] = idxOfX[i];
-    		cout << "TO OUTER [" << i << "] einai : "<< outer[i] << " kai to distances[i] einai: " << distances[idxOfX[i]] << " kai to pragmatiko simeio einai to: (" << myArray[idxOfX[i]][0] << ","<< myArray[idxOfX[i]][1] << ")" << endl;
-
+    //	cout << "sugkrino to distances["<<i<<"]" << " me value: " << distances[i] << endl;
+    	if (distances[i] >= median) {
+    		outer[count_outter] = idxOfX[i];
+    		cout << "TO OUTER [" << count_outter << "] einai : "<< outer[count_outter] << " kai to distances["<< i <<"] einai: " << distances[i] << " kai to pragmatiko simeio einai to: (" << myArray[idxOfX[i]][0] << ","<< myArray[idxOfX[i]][1] << ")" << endl;
+    		count_outter++;
 		} else {
-			inner[i] = idxOfX[i];
-			cout << "TO INNER [" << i << "] einai : "<< inner[i]<< " kai to distances[i] einai: " << distances[idxOfX[i]] << " kai to pragmatiko simeio einai to: (" << myArray[idxOfX[i]][0] << ","<< myArray[idxOfX[i]][1] << ")" << endl;
+			inner[count_inner] = idxOfX[i];
+			cout << "TO INNER [" << count_inner << "] einai : "<< inner[count_inner]<< " kai to distances["<< i <<"]  einai: " << distances[i] << " kai to pragmatiko simeio einai to: (" << myArray[idxOfX[i]][0] << ","<< myArray[idxOfX[i]][1] << ")" << endl;
+			count_inner++;
 		}
+    	cout << "to count_inner einai: " << count_inner << endl << "to count_outter einai: " << count_outter << endl;
 	}
 
 
