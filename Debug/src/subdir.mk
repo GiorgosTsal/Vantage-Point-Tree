@@ -4,13 +4,13 @@
 
 # Add inputs and outputs from these tool invocations to the build variables 
 CPP_SRCS += \
-../src/vptree.cpp 
+../src/Vantage-Point-Tree.cpp 
 
 OBJS += \
-./src/vptree.o 
+./src/Vantage-Point-Tree.o 
 
 CPP_DEPS += \
-./src/vptree.d 
+./src/Vantage-Point-Tree.d 
 
 
 # Each subdirectory must supply rules for building sources it contributes
