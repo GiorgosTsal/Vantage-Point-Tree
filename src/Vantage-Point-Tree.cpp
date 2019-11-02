@@ -12,7 +12,6 @@
 #include <cmath>
 #include <climits>
 #include <iomanip>
-//#include <bits/stdc++.h>  //na thumitho na to vgalo
 
 using namespace std;
 //na valo sto telos dunamika na vazei to n kai to d
@@ -28,13 +27,13 @@ const int n = 10, d = 2;
 // for testing and evaluating porpuses
 //na thumitho na ton valo double
 int myArray[n][d] = {
-    { 10, 4 },  //	0	12	1
-    { 5, 8 },//	1	34	1
-    { 6, 11 },//	2	235	0
-    { 4, 4 },//	3	435	0
-    { 5, 5 },//	4	34	1
-    { 16, 7 },//	5	1	1
-    { 7, 7 },//	6	64	1
+    { 10, 4 },
+    { 5, 8 },
+    { 6, 11 },
+    { 4, 4 },
+    { 5, 5 },
+    { 16, 7 },
+    { 7, 7 },
     { 8, 11 },
     { 9, 1 },
     { 3, 1 } //assume this point(last point) as vantage point
@@ -120,8 +119,27 @@ void populateArray(double X[n][d]){
 	    }
 }
 
+class VPtree
+{
+  public:
 
 
+};
+
+VPtree buildVPtree(){
+	VPtree tree;
+	return tree;
+}
+
+// param <name="idxOfDataset">indexes to a set of n points in d dimensions with coordinates dataset(1:n,1:d)
+// param <name="idxOfVP"> the index of the vantage point in the original set
+void buildVPtree(int idxOfDataset[], int datasetSize, int idxOfVP){
+	for(int i = 0; i < datasetSize; ++i){
+		cout << "mesa stin sunartisi to innerIdx["<<i<<"] einai : "<< idxOfDataset[i] <<endl;
+	}
+
+
+}
 
 int main()
 {
@@ -146,9 +164,12 @@ int main()
     int idxOfdistances[n-1];
     int matrix[d];
     int vantagePoint[d];
+    int idxOfVantagePoint = n - 1;
+
+
 
     for (int j = 0; j < d; j++) {
-        vantagePoint[j] = myArray[n - 1][j];//apothikeuo to simeio kanontas epanalipsi sto row gia na paro tis times ton dimensions (eg (X,Y)=(2,12))
+        vantagePoint[j] = myArray[idxOfVantagePoint][j];//apothikeuo to simeio kanontas epanalipsi sto row gia na paro tis times ton dimensions (eg (X,Y)=(2,12))
         cout <<"To Vantage Point einai: " << vantagePoint[j] << endl;
     }
 
@@ -173,20 +194,26 @@ int main()
     //partiotion matrix of distances to inner and outer points according to the median distances
     int count_inner = 0 ;
     int count_outter = 0 ;
-    int outer[n/2] , inner[n/2];
+    int outerIdx[n/2] , innerIdx[n/2];
+
     for (int i = 0;  i < idxOfdistancesLength; ++i) {
     	if (distances[i] >= median) {
-    		outer[count_outter] = idxOfX[i];
-    		cout << "========OUTER [" << count_outter << "] einai : "<< outer[count_outter] << " kai to distances["<< i <<"] einai: " << distances[i] << " kai to pragmatiko simeio einai to: (" << myArray[idxOfX[i]][0] << ","<< myArray[idxOfX[i]][1] << ")=============" << endl;
+    		outerIdx[count_outter] = idxOfX[i];
+    		cout << "========OUTER [" << count_outter << "] einai : "<< outerIdx[count_outter] << " kai to distances["<< i <<"] einai: " << distances[i] << " kai to pragmatiko simeio einai to: (" << myArray[idxOfX[i]][0] << ","<< myArray[idxOfX[i]][1] << ")=============" << endl;
     		count_outter++;
 		} else {
-			inner[count_inner] = idxOfX[i];
-			cout << "INNER [" << count_inner << "] einai : "<< inner[count_inner]<< " kai to distances["<< i <<"]  einai: " << distances[i] << " kai to pragmatiko simeio einai to: (" << myArray[idxOfX[i]][0] << ","<< myArray[idxOfX[i]][1] << ")" << endl;
+			innerIdx[count_inner] = idxOfX[i];
+			cout << "INNER [" << count_inner << "] einai : "<< innerIdx[count_inner]<< " kai to distances["<< i <<"]  einai: " << distances[i] << " kai to pragmatiko simeio einai to: (" << myArray[idxOfX[i]][0] << ","<< myArray[idxOfX[i]][1] << ")" << endl;
 			count_inner++;
 		}
 	}
     cout << "INNER einai episis kai to Vantage Point."<<  endl;
 
-
+    cout << "to size tou innerIdx prin to kaleso: " <<sizeof(innerIdx)/sizeof(innerIdx[0]) <<endl;
+    for(int i = 0; i < sizeof(innerIdx)/sizeof(innerIdx[0]); ++i){
+    	cout << "to innerIdx["<<i<<"] einai : "<< innerIdx[i] <<endl;
+    }
+    int innerIdxLength = sizeof(innerIdx)/sizeof(innerIdx[0]);
+    buildVPtree(innerIdx,innerIdxLength, 0);
     return 0;
 }
