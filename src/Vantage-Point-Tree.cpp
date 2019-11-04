@@ -66,9 +66,6 @@ int partition(float arr[], int l, int r)
 // IN ARR[] ARE DISTINCT
 float kthSmallest(float arr[], int l, int r, int k)
 {
-//	for (int i = 0; i < 9; ++i) {
-//		 cout << "to array stin kthSmallest einai: " << arr[i] <<endl;
-//	}
     // If k is smaller than number of
     // elements in array
     if (k > 0 && k <= r - l + 1) {
@@ -106,8 +103,6 @@ float findMedian(float distances[], int sizeofDistances){
 	 }
 	 else {
 			 median = kthSmallest(distances, 0, sizeofDistances - 1, (sizeofDistances+1)/2 );
-			 cout << "MAKIS:" <<median<<endl;
-
 	 }
 	 return median;
 }
@@ -117,7 +112,7 @@ void populateArray(float X[n][d]){
 	        for (int j = 0; j < d; j++) {
 	            X[i][j] = rand()/float(RAND_MAX)*24.f+1.f;	//rand() % 100;
 	        }
-	    }
+	  }
 }
 
 class VPtree
@@ -132,6 +127,7 @@ VPtree buildVPtree(){
 	return tree;
 }
 
+//na valo os parametrous duo pinakes tous opoious tha allazo mesa sti sinartisi
 // param <name="idxOfDataset">indexes to a set of n points in d dimensions with coordinates dataset(1:n,1:d)
 // param <name="idxOfVP"> the index of the vantage point in the original set
 void buildVPtree(int idxOfDataset[], int datasetSize){
@@ -158,18 +154,42 @@ void buildVPtree(int idxOfDataset[], int datasetSize){
 		for (int i = 0; i < datasetSize-1; i++) { //mexri -1 giati panta theto os vantage point to last point tou matrix
 			for (int j = 0; j < d; j++) {
 				nPointToCalcDistance[j] = myArray[idxOfDataset[i]][j];
-			//	cout << "To nPointToCalcDistance [" << j << "] einai : "<< nPointToCalcDistance[j] << endl;
+				//cout << "To nPointToCalcDistance [" << j << "] einai : "<< nPointToCalcDistance[j] << endl;
 			}
 			distances2[i] = calculateDistance(nPointToCalcDistance, nVantagePoint);
 			tempDistences2[i] = distances2[i];
 			cout << "To distances2 [" << i << "] einai : "<< distances2[i] << endl;
 		}
+
+
 		//find median of the distances matrix
 		int sizeoftempDistances2 = sizeof(tempDistences2) / sizeof(tempDistences2[0]);
-	//	float median2 = findMedian(tempDistences2, sizeoftempDistances2);
-		//cout << "to median2 pou gurnaei i findMedian(tempDistences2) einai: " << median2 <<endl;
+		//hold the indexes of the distances
+		int idxOfDistances2[datasetSize-1];
+		float median2 = findMedian(tempDistences2, sizeoftempDistances2);
+		cout << "to median2 pou gurnaei i findMedian(tempDistences2) einai: " << median2 <<endl;
 
 		//partition matrix of distances to inner and outer points according to the median distance
+	    int idxOfdistances2Length = sizeof(idxOfDistances2)/sizeof(idxOfDistances2[0]);
+
+	    //partition matrix of distances to inner and outer points according to the median distance
+	    int count_inner2 = 0 ;
+	    int count_outter2 = 0 ;
+	    int outerIdx2[n/2 +1 ] , innerIdx2[n/2 + 1];
+
+
+	    for (int i = 0;  i < idxOfdistances2Length; ++i) {
+	    	if (distances2[i] >= median2 && distances2[i] != 0.0) { //TODO na valo k distances[i] !=0.0 gia na vgazo ekso to vantage point
+	    		outerIdx2[count_outter2] = idxOfDataset[i];
+	    		cout << "========OUTER2 [" << count_outter2 << "] einai : "<< outerIdx2[count_outter2] << " kai to distances2["<< i <<"] einai: " << distances2[i] << " kai to pragmatiko simeio einai to: (" << myArray[idxOfDataset[i]][0] << ","<< myArray[idxOfDataset[i]][1] << ")=============" << endl;
+	    		count_outter2++;
+			} else if(distances2[i] != 0.0){
+				innerIdx2[count_inner2] = idxOfDataset[i];
+				cout << "INNER2 [" << count_inner2 << "] einai : "<< innerIdx2[count_inner2]<< " kai to distances2["<< i <<"]  einai: " << distances2[i] << " kai to pragmatiko simeio einai to: (" << myArray[idxOfDataset[i]][0] << ","<< myArray[idxOfDataset[i]][1] << ")" << endl;
+				count_inner2++;
+			}
+		}
+	    cout << "INNER einai episis kai to Vantage Point."<<  endl;
 	}
 
 }
@@ -223,7 +243,6 @@ int main()
     cout << "to median pou gurnaei i findMedian(tempDistences) einai: " << median <<endl;
 
 
- //   int distancesLength = sizeof(distances)/sizeof(distances[0]);
     int idxOfdistancesLength = sizeof(idxOfdistances)/sizeof(idxOfdistances[0]);
 
     //partition matrix of distances to inner and outer points according to the median distance
@@ -249,11 +268,19 @@ int main()
     for(int i = 0; i < sizeof(innerIdx)/sizeof(innerIdx[0]); ++i){
     	cout << "to innerIdx["<<i<<"] einai : "<< innerIdx[i] <<endl;
     }
+    for(int i = 0; i < sizeof(innerIdx)/sizeof(innerIdx[0]); ++i){
+     	cout << "to outerIdx["<<i<<"] einai : "<< outerIdx[i] <<endl;
+     }
 
     //int innerIdxLength = sizeof(innerIdx)/sizeof(innerIdx[0]);
     cout << "==================================END OF FIRST ITERATION==================================================================" << endl ;
 
-    cout << "to count_inner inee: " <<count_inner <<endl;
-   // buildVPtree(innerIdx,count_inner);
+    cout << "==================================BEGGINING OF INNER PARTITION============================================" <<endl;
+    buildVPtree(innerIdx,count_inner);
+    cout << "==================================END OF INNER PARTITION============================================" <<endl;
+    cout << "==================================BEGGINING OF OUTER PARTITION============================================" <<endl;
+    buildVPtree(outerIdx,count_outter);
+    cout << "==================================END OF OUTER PARTITION============================================" <<endl;
     return 0;
 }
+
