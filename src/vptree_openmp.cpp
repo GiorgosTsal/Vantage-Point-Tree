@@ -15,29 +15,31 @@
 
 using namespace std;
 //na valo sto telos dunamika na vazei to n kai to d
-const int n = 10, d = 2;
+const int n = 100, d = 1000;
 
 //https://medium.com/swlh/openmp-on-ubuntu-1145355eeb2
 
 //ctrl + shift + / <--NUM_KEYPAD_DIVIDE gia collapse
 // for testing and evaluating porpuses
 //na thumitho na ton valo float
-float myArray[n][d] = {
-    { 10.0, 4.0 },
-    { 5.0, 8.0 },
-    { 6.0, 11.0 },
-    { 4.0, 4.0 },
-    { 5.0, 5.0 },
-    { 16.0, 7.0 },
-    { 7.0, 7.0 },
-    { 8.0, 11.0 },
-    { 9.2, 1.0 },
-    { 3.1, 1.0 } //assume this point(last point) as vantage point
-};
+//float myArray[n][d] = {
+//    { 10.0, 4.0 },
+//    { 5.0, 8.0 },
+//    { 6.0, 11.0 },
+//    { 4.0, 4.0 },
+//    { 5.0, 5.0 },
+//    { 16.0, 7.0 },
+//    { 7.0, 7.0 },
+//    { 8.0, 11.0 },
+//    { 9.2, 1.0 },
+//    { 3.1, 1.0 } //assume this point(last point) as vantage point
+//};
+
+float X[n][d];
 
 
 // This function calculates distances between tow points
-float calculateDistance(float a[2], float b[2])
+float calculateDistance(float a[d], float b[d])
 {
 	float sum = 0;
 	for (int i = 0; i < d; i++) {
@@ -110,11 +112,11 @@ float findMedian(float distances[], int sizeofDistances){
 }
 //populate array with random floats numbers
 void populateArray(float X[n][d]){
-	  for (int i = 0; i < n; i++) {
-	        for (int j = 0; j < d; j++) {
-	            X[i][j] = rand()/float(RAND_MAX)*24.f+1.f;	//rand() % 100;
-	        }
-	  }
+	for (int i = 0; i < n; i++) {
+		for (int j = 0; j < d; j++) {
+			X[i][j] = rand()/float(RAND_MAX)*24.f+1.f;	//rand() % 100;
+		}
+	}
 }
 
 class VPtree
@@ -129,7 +131,7 @@ class VPtree
 		VPtree T;
 		VPtree * T_ptr;
 		T_ptr = &T;
-		int outerIdx2[n/2 +1 ] , innerIdx2[n/2 + 1];
+		int outerIdx2[n/2 +10 ] , innerIdx2[n/2 + 10];
 		int count_inner2 = 0 ;
 		int count_outter2 = 0 ;
 		int idxOfvantagePoint =idxOfInnerDataset[innerSize-1];//theto os vantage point to last point tou matrix
@@ -150,14 +152,16 @@ class VPtree
 						//Calculate distances from vantage point to all other points of the given dataset
 						float nVantagePoint[d];
 						for (int j = 0; j < d; j++) {
-							nVantagePoint[j] = myArray[idxOfvantagePoint][j];//apothikeuo to simeio kanontas epanalipsi sto row gia na paro tis times ton dimensions (eg (X,Y)=(2,12))
+							nVantagePoint[j] = X[idxOfvantagePoint][j];//apothikeuo to simeio kanontas epanalipsi sto row gia na paro tis times ton dimensions (eg (X,Y)=(2,12))
 								cout <<"To nVantage Point einai: " << nVantagePoint[j] << endl;
 						}
 						float nPointToCalcDistance[d];
 						float distances2[innerSize-1], tempDistences2[innerSize-1];
+						#pragma omp parallel for
 						for (int i = 0; i < innerSize-1; i++) { //mexri -1 giati panta theto os vantage point to last point tou matrix
+							#pragma omp parallel for
 							for (int j = 0; j < d; j++) {
-								nPointToCalcDistance[j] = myArray[idxOfInnerDataset[i]][j];
+								nPointToCalcDistance[j] = X[idxOfInnerDataset[i]][j];
 								//cout << "To nPointToCalcDistance [" << j << "] einai : "<< nPointToCalcDistance[j] << endl;
 							}
 							distances2[i] = calculateDistance(nPointToCalcDistance, nVantagePoint);
@@ -175,17 +179,19 @@ class VPtree
 
 
 						//Partition matrix of distances to inner and outer points according to the median distance
+
 						int idxOfdistances2Length = sizeof(idxOfDistances2)/sizeof(idxOfDistances2[0]);
+						#pragma omp parallel for
 						for (int i = 0;  i < idxOfdistances2Length; ++i) {
 							if (distances2[i] >= median2 && distances2[i] != 0.0) { // distances[i] !=0.0 gia na vgazo ekso to vantage point
 								outerIdx2[count_outter2] = idxOfInnerDataset[i];
 								cout << "========OUTER2 [" << count_outter2 << "] einai : "<< outerIdx2[count_outter2] << " kai to distances2["<< i <<"] einai: " << distances2[i] << " kai to pragmatiko simeio einai to: ("
-										<< myArray[idxOfInnerDataset[i]][0] << ","<< myArray[idxOfInnerDataset[i]][1] << ")=============" << endl;
+										<< X[idxOfInnerDataset[i]][0] << ","<< X[idxOfInnerDataset[i]][1] << ")=============" << endl;
 								count_outter2++;
 							} else if(distances2[i] != 0.0){
 								innerIdx2[count_inner2] = idxOfInnerDataset[i];
 								cout << "INNER2 [" << count_inner2 << "] einai : "<< innerIdx2[count_inner2]<< " kai to distances2["<< i <<"]  einai: " << distances2[i] << " kai to pragmatiko simeio einai to: ("
-										<< myArray[idxOfInnerDataset[i]][0] << ","<< myArray[idxOfInnerDataset[i]][1] << ")" << endl;
+										<< X[idxOfInnerDataset[i]][0] << ","<< X[idxOfInnerDataset[i]][1] << ")" << endl;
 								count_inner2++;
 							}
 						}
@@ -230,17 +236,18 @@ class VPtree
 
 					float nVantagePoint[d];
 					for (int j = 0; j < d; j++) {
-						nVantagePoint[j] = myArray[idxOfvantagePoint][j];//apothikeuo to simeio kanontas epanalipsi sto row gia na paro tis times ton dimensions (eg (X,Y)=(2,12))
+						nVantagePoint[j] = X[idxOfvantagePoint][j];//apothikeuo to simeio kanontas epanalipsi sto row gia na paro tis times ton dimensions (eg (X,Y)=(2,12))
 							cout <<"To nVantage Point einai: " << nVantagePoint[j] << endl;
 					}
 					float nPointToCalcDistance[d];
 					float distances2[outerSize-1], tempDistences2[outerSize-1];
 					 //Calculate distances from vantage point to all other points
 
-
+					#pragma omp parallel for
 					for (int i = 0; i < outerSize-1; i++) { //mexri -1 giati panta theto os vantage point to last point tou matrix
+						#pragma omp parallel for
 						for (int j = 0; j < d; j++) {
-							nPointToCalcDistance[j] = myArray[idxOfOuterDataset[i]][j];
+							nPointToCalcDistance[j] = X[idxOfOuterDataset[i]][j];
 							cout << "To nPointToCalcDistance [" << j << "] einai : "<< nPointToCalcDistance[j] << endl;
 						}
 						distances2[i] = calculateDistance(nPointToCalcDistance, nVantagePoint);
@@ -258,18 +265,18 @@ class VPtree
 					int idxOfdistances2Length = sizeof(idxOfDistances2)/sizeof(idxOfDistances2[0]);
 
 					//partition matrix of distances to inner and outer points according to the median distance
-
+					#pragma omp parallel for
 					for (int i = 0;  i < idxOfdistances2Length+1; ++i) {
 
 						if (distances2[i] >= median2 && distances2[i] != 0.0) { // distances[i] !=0.0 gia na vgazo ekso to vantage point
 							outerIdx2[count_outter2] = idxOfOuterDataset[i];
 							cout << "========OUTER2 [" << count_outter2 << "] einai : "<< outerIdx2[count_outter2] << " kai to distances2["<< i <<"] einai: " << distances2[i] << " kai to pragmatiko simeio einai to: ("
-									<< myArray[idxOfOuterDataset[i]][0] << ","<< myArray[idxOfOuterDataset[i]][1] << ")=============" << endl;
+									<< X[idxOfOuterDataset[i]][0] << ","<< X[idxOfOuterDataset[i]][1] << ")=============" << endl;
 							count_outter2++;
 						} else if(distances2[i] != 0.0){
 							innerIdx2[count_inner2] = idxOfOuterDataset[i];
 							cout << "INNER2 [" << count_inner2 << "] einai : "<< innerIdx2[count_inner2]<< " kai to distances2["<< i <<"]  einai: " << distances2[i] << " kai to pragmatiko simeio einai to: ("
-									<< myArray[idxOfOuterDataset[i]][0] << ","<< myArray[idxOfOuterDataset[i]][1] << ")" << endl;
+									<< X[idxOfOuterDataset[i]][0] << ","<< X[idxOfOuterDataset[i]][1] << ")" << endl;
 							count_inner2++;
 						}
 					}
@@ -315,16 +322,17 @@ int main()
 	/* Recording the starting clock tick.*/
 	start = clock();
 
-    float X[n][d];
+   // float tempX[n][d];
     int idxOfX[n];
-    populateArray(X);
-//Block to check the values of X matrix
-//    for (int i = 0; i < n; i++) {
-//   	        for (int j = 0; j < d; j++) {
-//   	            cout << "To X["<< i << "]["<< j << "] einai: "      <<X[i][j] << endl;
-//   	        }
-//   	     cout <<  endl;
-//   	    }
+
+   populateArray(X);
+   //Block to check the values of X matrix
+    for (int i = 0; i < n; i++) {
+		for (int j = 0; j < d; j++) {
+			cout << "To X["<< i << "]["<< j << "] einai: " << X[i][j]   << endl;
+		}
+	 cout <<  endl;
+	}
 // uncomment for debug
 
     //Hold the indexes of my X matrix where my points stored
@@ -341,16 +349,16 @@ int main()
 
 
     for (int j = 0; j < d; j++) {
-        vantagePoint[j] = myArray[idxOfVantagePoint][j];//apothikeuo to simeio kanontas epanalipsi sto row gia na paro tis times ton dimensions (eg (X,Y)=(2,12))
+        vantagePoint[j] = X[idxOfVantagePoint][j];//apothikeuo to simeio kanontas epanalipsi sto row gia na paro tis times ton dimensions (eg (X,Y)=(2,12))
         cout <<"To Vantage Point einai: " << vantagePoint[j] << endl;
     }
 
-    //Calculate distances from vantage point to all other points
+    //Calculate distances in parallel from vantage point to all other points
 	#pragma omp parallel for
     for (int i = 0; i < n-1; i++) {
 		#pragma omp parallel for
         for (int j = 0; j < d; j++) {
-        	pointToCalcDistance[j] = myArray[i][j];
+        	pointToCalcDistance[j] = X[i][j];
         //    cout << "To pointToCalcDistance [" << j << "] einai : "<< pointToCalcDistance[j] << endl;
         }
         distances[i] = calculateDistance(pointToCalcDistance, vantagePoint);
@@ -381,14 +389,15 @@ int main()
 //			cout << i << endl;
 //		}
 //	}
+	#pragma omp parallel for
     for (int i = 0;  i < idxOfdistancesLength; ++i) {
     	if (distances[i] >= median && distances[i] != 0.0) { //distances[i] !=0.0 gia na vgazo ekso to vantage point
 			outerIdx[count_outter] = idxOfX[i];
-		//	cout << "========OUTER [" << count_outter << "] einai : "<< outerIdx[count_outter] << " kai to distances["<< i <<"] einai: " << distances[i] << " kai to pragmatiko simeio einai to: (" << myArray[idxOfX[i]][0] << ","<< myArray[idxOfX[i]][1] << ")=============" << endl;
+			cout << "========OUTER [" << count_outter << "] einai : "<< outerIdx[count_outter] << " kai to distances["<< i <<"] einai: " << distances[i] << " kai to pragmatiko simeio einai to: (" << X[idxOfX[i]][0] << ","<< X[idxOfX[i]][1] << ")=============" << endl;
 			count_outter++;
 		} else if(distances[i] != 0.0){
 			innerIdx[count_inner] = idxOfX[i];
-			//cout << "INNER [" << count_inner << "] einai : "<< innerIdx[count_inner]<< " kai to distances["<< i <<"]  einai: " << distances[i] << " kai to pragmatiko simeio einai to: (" << myArray[idxOfX[i]][0] << ","<< myArray[idxOfX[i]][1] << ")" << endl;
+			cout << "INNER [" << count_inner << "] einai : "<< innerIdx[count_inner]<< " kai to distances["<< i <<"]  einai: " << distances[i] << " kai to pragmatiko simeio einai to: (" << X[idxOfX[i]][0] << ","<< X[idxOfX[i]][1] << ")" << endl;
 			count_inner++;
 		}
 	}
@@ -415,3 +424,4 @@ int main()
 	cout << " sec " << endl;
     return 0;
 }
+
