@@ -12,28 +12,18 @@
 #include <cmath>
 #include <climits>
 #include <iomanip>
+#include <omp.h>
 
 using namespace std;
 //na valo sto telos dunamika na vazei to n kai to d
-const int n = 100, d = 1000;
+const int n = 1000, d = 100;
 
 //https://medium.com/swlh/openmp-on-ubuntu-1145355eeb2
 
+//https://openmp.org/wp-content/uploads/sc13.tasking.ruud.pdf
+
 //ctrl + shift + / <--NUM_KEYPAD_DIVIDE gia collapse
-// for testing and evaluating porpuses
-//na thumitho na ton valo float
-//float myArray[n][d] = {
-//    { 10.0, 4.0 },
-//    { 5.0, 8.0 },
-//    { 6.0, 11.0 },
-//    { 4.0, 4.0 },
-//    { 5.0, 5.0 },
-//    { 16.0, 7.0 },
-//    { 7.0, 7.0 },
-//    { 8.0, 11.0 },
-//    { 9.2, 1.0 },
-//    { 3.1, 1.0 } //assume this point(last point) as vantage point
-//};
+
 
 float X[n][d];
 
@@ -157,9 +147,8 @@ class VPtree
 						}
 						float nPointToCalcDistance[d];
 						float distances2[innerSize-1], tempDistences2[innerSize-1];
-						#pragma omp parallel for
+						#pragma omp parallel for //parallelize only for the innerSize-1 (distances association)
 						for (int i = 0; i < innerSize-1; i++) { //mexri -1 giati panta theto os vantage point to last point tou matrix
-							#pragma omp parallel for
 							for (int j = 0; j < d; j++) {
 								nPointToCalcDistance[j] = X[idxOfInnerDataset[i]][j];
 								//cout << "To nPointToCalcDistance [" << j << "] einai : "<< nPointToCalcDistance[j] << endl;
@@ -181,7 +170,7 @@ class VPtree
 						//Partition matrix of distances to inner and outer points according to the median distance
 
 						int idxOfdistances2Length = sizeof(idxOfDistances2)/sizeof(idxOfDistances2[0]);
-						#pragma omp parallel for
+					//	#pragma omp parallel for
 						for (int i = 0;  i < idxOfdistances2Length; ++i) {
 							if (distances2[i] >= median2 && distances2[i] != 0.0) { // distances[i] !=0.0 gia na vgazo ekso to vantage point
 								outerIdx2[count_outter2] = idxOfInnerDataset[i];
@@ -213,6 +202,7 @@ class VPtree
 
 						cout << "INNER einai episis kai to Vantage Point."<<  endl;
 						cout << "--------------ARXI ANADROMIS GIA TA PROTA INNER1------------------------"<<  endl <<endl <<endl <<endl;
+					//	omp_set_nested(1);
 						buildVPtree(innerIdx2, count_inner2, outerIdx2, count_outter2);
 						cout << "--------------TELOS ANADROMIS GIA TA PROTA INNER INNER1------------------------"<<  endl<<endl <<endl <<endl;
 					}
@@ -242,10 +232,8 @@ class VPtree
 					float nPointToCalcDistance[d];
 					float distances2[outerSize-1], tempDistences2[outerSize-1];
 					 //Calculate distances from vantage point to all other points
-
-					#pragma omp parallel for
+					#pragma omp parallel for //parallelize only for the outerSize-1 (distances association)
 					for (int i = 0; i < outerSize-1; i++) { //mexri -1 giati panta theto os vantage point to last point tou matrix
-						#pragma omp parallel for
 						for (int j = 0; j < d; j++) {
 							nPointToCalcDistance[j] = X[idxOfOuterDataset[i]][j];
 							cout << "To nPointToCalcDistance [" << j << "] einai : "<< nPointToCalcDistance[j] << endl;
@@ -265,7 +253,7 @@ class VPtree
 					int idxOfdistances2Length = sizeof(idxOfDistances2)/sizeof(idxOfDistances2[0]);
 
 					//partition matrix of distances to inner and outer points according to the median distance
-					#pragma omp parallel for
+					//#pragma omp parallel for
 					for (int i = 0;  i < idxOfdistances2Length+1; ++i) {
 
 						if (distances2[i] >= median2 && distances2[i] != 0.0) { // distances[i] !=0.0 gia na vgazo ekso to vantage point
@@ -297,6 +285,7 @@ class VPtree
 					cout << "To *this->idxOfOuter einai: " << *this->idxOfOuter << " eno to official outerIdx2 einai " << *outerIdx2 <<endl;
 
 					cout << "--------------ARXI ANADROMIS GIA TA PROTA INNER2------------------------"<<  endl <<endl<<endl <<endl;
+				//	omp_set_nested(1);
 					buildVPtree(innerIdx2, count_inner2, outerIdx2, count_outter2);
 					cout << "--------------TELOS ANADROMIS GIA TA PROTA INNER INNER2------------------------"<<  endl<<endl<<endl <<endl;
 
@@ -354,9 +343,8 @@ int main()
     }
 
     //Calculate distances in parallel from vantage point to all other points
-	#pragma omp parallel for
+	#pragma omp parallel for //parallelize only for the n-1 (distances association)
     for (int i = 0; i < n-1; i++) {
-		#pragma omp parallel for
         for (int j = 0; j < d; j++) {
         	pointToCalcDistance[j] = X[i][j];
         //    cout << "To pointToCalcDistance [" << j << "] einai : "<< pointToCalcDistance[j] << endl;
@@ -381,15 +369,7 @@ int main()
 
 
 
-    //	#pragma omp parallel for
-//    for (int i = 0; i < 2; ++i) {
-//		if(true){
-//			cout << i << endl;
-//		}else{
-//			cout << i << endl;
-//		}
-//	}
-	#pragma omp parallel for
+   //	#pragma omp parallel for
     for (int i = 0;  i < idxOfdistancesLength; ++i) {
     	if (distances[i] >= median && distances[i] != 0.0) { //distances[i] !=0.0 gia na vgazo ekso to vantage point
 			outerIdx[count_outter] = idxOfX[i];
