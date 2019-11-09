@@ -12,6 +12,8 @@
 #include <cmath>
 #include <climits>
 #include <iomanip>
+#include <cilk/cilk.h>
+#include <cilk/cilk_api.h>
 //#include "vptree.h"
 
 using namespace std;
@@ -140,7 +142,7 @@ class vptree
 						}
 						double nPointToCalcDistance[d];
 						double distances2[innerSize-1], tempDistences2[innerSize-1];
-						for (int i = 0; i < innerSize-1; i++) { //mexri -1 giati panta theto os vantage point to last point tou matrix
+						cilk_for (int i = 0; i < innerSize-1; i++) { //mexri -1 giati panta theto os vantage point to last point tou matrix
 							for (int j = 0; j < d; j++) {
 								nPointToCalcDistance[j] = X[idxOfInnerDataset[i]][j];
 								//cout << "To nPointToCalcDistance [" << j << "] einai : "<< nPointToCalcDistance[j] << endl;
@@ -149,7 +151,7 @@ class vptree
 							tempDistences2[i] = distances2[i];
 							cout << "To distances2 [" << i << "] einai : "<< distances2[i] << endl;
 						}
-
+						cilk_sync;
 
 						//Find median of the distances matrix
 						int sizeoftempDistances2 = sizeof(tempDistences2) / sizeof(tempDistences2[0]);
@@ -161,7 +163,7 @@ class vptree
 
 						//Partition matrix of distances to inner and outer points according to the median distance
 						int idxOfdistances2Length = sizeof(idxOfDistances2)/sizeof(idxOfDistances2[0]);
-						for (int i = 0;  i < idxOfdistances2Length; ++i) {
+						cilk_for (int i = 0;  i < idxOfdistances2Length; ++i) {
 							if (distances2[i] >= median2 && distances2[i] != 0.0) { // distances[i] !=0.0 gia na vgazo ekso to vantage point
 								outerIdx2[count_outter2] = idxOfInnerDataset[i];
 								cout << "========OUTER2 [" << count_outter2 << "] einai : "<< outerIdx2[count_outter2] << " kai to distances2["<< i <<"] einai: " << distances2[i] << " kai to pragmatiko simeio einai to: ("
@@ -174,6 +176,7 @@ class vptree
 								count_inner2++;
 							}
 						}
+						cilk_sync;
 						//edo pou exo ta stoixeia mou : vp, median, outer iner indexes kano populate to antikeimeno mou me ta antistoixa
 						this->idxOfVP = idxOfvantagePoint;
 						for (int j = 0; j < d; j++) {
@@ -192,7 +195,8 @@ class vptree
 
 						cout << "INNER einai episis kai to Vantage Point."<<  endl;
 						cout << "--------------ARXI ANADROMIS GIA TA PROTA INNER1------------------------"<<  endl <<endl <<endl <<endl;
-						buildvptree(innerIdx2, count_inner2, outerIdx2, count_outter2);
+						cilk_spawn buildvptree(innerIdx2, count_inner2, outerIdx2, count_outter2);
+						cilk_sync;
 						cout << "--------------TELOS ANADROMIS GIA TA PROTA INNER INNER1------------------------"<<  endl<<endl <<endl <<endl;
 					}
 			//Ypologizo ta antistoixa gia ta outer
@@ -223,7 +227,7 @@ class vptree
 					 //Calculate distances from vantage point to all other points
 
 
-					for (int i = 0; i < outerSize-1; i++) { //mexri -1 giati panta theto os vantage point to last point tou matrix
+					cilk_for (int i = 0; i < outerSize-1; i++) { //mexri -1 giati panta theto os vantage point to last point tou matrix
 						for (int j = 0; j < d; j++) {
 							nPointToCalcDistance[j] = X[idxOfOuterDataset[i]][j];
 							cout << "To nPointToCalcDistance [" << j << "] einai : "<< nPointToCalcDistance[j] << endl;
@@ -232,6 +236,7 @@ class vptree
 						tempDistences2[i] = distances2[i];
 						cout << "To distances2 [" << i << "] einai : "<< distances2[i] << endl;
 					}
+					cilk_sync;
 					//find median of the distances matrix
 					int sizeoftempDistances2 = sizeof(tempDistences2) / sizeof(tempDistences2[0]);
 					//hold the indexes of the distances
@@ -275,7 +280,8 @@ class vptree
 					cout << "To *this->idxOfOuter einai: " << *this->idxOfOuter << " eno to official outerIdx2 einai " << *outerIdx2 <<endl;
 
 					cout << "--------------ARXI ANADROMIS GIA TA PROTA INNER2------------------------"<<  endl <<endl<<endl <<endl;
-					buildvptree(innerIdx2, count_inner2, outerIdx2, count_outter2);
+					cilk_spawn buildvptree(innerIdx2, count_inner2, outerIdx2, count_outter2);
+					cilk_sync;
 					cout << "--------------TELOS ANADROMIS GIA TA PROTA INNER INNER2------------------------"<<  endl<<endl<<endl <<endl;
 
 				}
@@ -321,7 +327,7 @@ int main()
     }
 
     //Calculate distances from vantage point to all other points
-    for (int i = 0; i < n-1; i++) {
+    cilk_for (int i = 0; i < n-1; i++) {
         for (int j = 0; j < d; j++) {
         	pointToCalcDistance[j] = X[i][j];
         //    cout << "To pointToCalcDistance [" << j << "] einai : "<< pointToCalcDistance[j] << endl;
@@ -366,9 +372,8 @@ int main()
     cout << "==================================BEGGINING OF FIRST INNER AND OUTTER PARTITION============================================" <<endl;
 
     vptree vptree;
-    vptree.buildvptree(innerIdx,count_inner, outerIdx,count_outter);
-
+    cilk_spawn vptree.buildvptree(innerIdx,count_inner, outerIdx,count_outter);
+    cilk_sync;
     cout << "ola good.";
     return 0;
 }
-

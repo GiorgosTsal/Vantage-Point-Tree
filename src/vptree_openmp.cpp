@@ -13,25 +13,23 @@
 #include <climits>
 #include <iomanip>
 #include <omp.h>
+#include <bits/stdc++.h>
+#include <sys/time.h>
 
 using namespace std;
 //na valo sto telos dunamika na vazei to n kai to d
-const int n = 1000, d = 100;
-
-//https://medium.com/swlh/openmp-on-ubuntu-1145355eeb2
-
-//https://openmp.org/wp-content/uploads/sc13.tasking.ruud.pdf
+const int n = 1000, d = 2;
 
 //ctrl + shift + / <--NUM_KEYPAD_DIVIDE gia collapse
 
 
-float X[n][d];
+double X[n][d];
 
 
 // This function calculates distances between tow points
-float calculateDistance(float a[d], float b[d])
+double calculateDistance(double a[d], double b[d])
 {
-	float sum = 0;
+	double sum = 0;
 	for (int i = 0; i < d; i++) {
 		sum = sum + pow(a[i] - b[i], 2);
 	}
@@ -41,9 +39,9 @@ float calculateDistance(float a[d], float b[d])
 // It considers the last element as pivot
 // and moves all smaller element to left of
 // it and greater elements to right
-int partition(float arr[], int l, int r)
+int partition(double arr[], int l, int r)
 {
-    float x = arr[r];
+    double x = arr[r];
     int i = l;
     for (int j = l; j <= r - 1; j++) {
         if (arr[j] <= x) {
@@ -58,7 +56,7 @@ int partition(float arr[], int l, int r)
 // element in arr[l..r] using QuickSort
 // based method.  ASSUMPTION: ALL ELEMENTS
 // IN ARR[] ARE DISTINCT
-float kthSmallest(float arr[], int l, int r, int k)
+double kthSmallest(double arr[], int l, int r, int k)
 {
     // If k is smaller than number of
     // elements in array
@@ -87,9 +85,9 @@ float kthSmallest(float arr[], int l, int r, int k)
     return INT_MAX;
 }
 //find median
-float findMedian(float distances[], int sizeofDistances){
+double findMedian(double distances[], int sizeofDistances){
 	 int n1, n2;
-	 float median;
+	 double median;
 	 if (sizeofDistances % 2 == 0) {
 	         n1 = (sizeofDistances + 2) / 2;
 	         n2 = sizeofDistances / 2;
@@ -100,11 +98,11 @@ float findMedian(float distances[], int sizeofDistances){
 	 }
 	 return median;
 }
-//populate array with random floats numbers
-void populateArray(float X[n][d]){
+//populate array with random doubles numbers
+void populateArray(double X[n][d]){
 	for (int i = 0; i < n; i++) {
 		for (int j = 0; j < d; j++) {
-			X[i][j] = rand()/float(RAND_MAX)*24.f+1.f;	//rand() % 100;
+			X[i][j] = rand()/double(RAND_MAX)*24.f+1.f;	//rand() % 100;
 		}
 	}
 }
@@ -112,8 +110,8 @@ void populateArray(float X[n][d]){
 class VPtree
 {
 	int idxOfVP;
-	float vantagePoint[d];
-	float median;
+	double vantagePoint[d];
+	double median;
 	int *idxOfOuter, *idxOfInner;
 
   public:
@@ -140,14 +138,15 @@ class VPtree
 					}
 
 						//Calculate distances from vantage point to all other points of the given dataset
-						float nVantagePoint[d];
+						double nVantagePoint[d];
 						for (int j = 0; j < d; j++) {
 							nVantagePoint[j] = X[idxOfvantagePoint][j];//apothikeuo to simeio kanontas epanalipsi sto row gia na paro tis times ton dimensions (eg (X,Y)=(2,12))
 								cout <<"To nVantage Point einai: " << nVantagePoint[j] << endl;
 						}
-						float nPointToCalcDistance[d];
-						float distances2[innerSize-1], tempDistences2[innerSize-1];
-						#pragma omp parallel for //parallelize only for the innerSize-1 (distances association)
+						double nPointToCalcDistance[d];
+						double distances2[innerSize-1], tempDistences2[innerSize-1];
+
+						//#pragma omp parallel for //parallelize only for the innerSize-1 (distances association)
 						for (int i = 0; i < innerSize-1; i++) { //mexri -1 giati panta theto os vantage point to last point tou matrix
 							for (int j = 0; j < d; j++) {
 								nPointToCalcDistance[j] = X[idxOfInnerDataset[i]][j];
@@ -163,7 +162,7 @@ class VPtree
 						int sizeoftempDistances2 = sizeof(tempDistences2) / sizeof(tempDistences2[0]);
 						//hold the indexes of the distances
 						int idxOfDistances2[innerSize-1];
-						float median2 = findMedian(tempDistences2, sizeoftempDistances2);
+						double median2 = findMedian(tempDistences2, sizeoftempDistances2);
 						cout << "to median2 pou gurnaei i findMedian(tempDistences2) einai: " << median2 <<endl;
 
 
@@ -202,7 +201,7 @@ class VPtree
 
 						cout << "INNER einai episis kai to Vantage Point."<<  endl;
 						cout << "--------------ARXI ANADROMIS GIA TA PROTA INNER1------------------------"<<  endl <<endl <<endl <<endl;
-					//	omp_set_nested(1);
+					//	#pragma omp parallel
 						buildVPtree(innerIdx2, count_inner2, outerIdx2, count_outter2);
 						cout << "--------------TELOS ANADROMIS GIA TA PROTA INNER INNER1------------------------"<<  endl<<endl <<endl <<endl;
 					}
@@ -224,15 +223,16 @@ class VPtree
 				} else {
 					//find distance between given vantage point and all other points of the dataset
 
-					float nVantagePoint[d];
+					double nVantagePoint[d];
 					for (int j = 0; j < d; j++) {
 						nVantagePoint[j] = X[idxOfvantagePoint][j];//apothikeuo to simeio kanontas epanalipsi sto row gia na paro tis times ton dimensions (eg (X,Y)=(2,12))
 							cout <<"To nVantage Point einai: " << nVantagePoint[j] << endl;
 					}
-					float nPointToCalcDistance[d];
-					float distances2[outerSize-1], tempDistences2[outerSize-1];
+					double nPointToCalcDistance[d];
+					double distances2[outerSize-1], tempDistences2[outerSize-1];
 					 //Calculate distances from vantage point to all other points
-					#pragma omp parallel for //parallelize only for the outerSize-1 (distances association)
+
+					//	#pragma omp parallel for //parallelize only for the outerSize-1 (distances association)
 					for (int i = 0; i < outerSize-1; i++) { //mexri -1 giati panta theto os vantage point to last point tou matrix
 						for (int j = 0; j < d; j++) {
 							nPointToCalcDistance[j] = X[idxOfOuterDataset[i]][j];
@@ -246,14 +246,13 @@ class VPtree
 					int sizeoftempDistances2 = sizeof(tempDistences2) / sizeof(tempDistences2[0]);
 					//hold the indexes of the distances
 					int idxOfDistances2[innerSize-1];
-					float median2 = findMedian(tempDistences2, sizeoftempDistances2);
+					double median2 = findMedian(tempDistences2, sizeoftempDistances2);
 					cout << "to median2 pou gurnaei i findMedian(tempDistences2) einai: " << median2 <<endl;
 
 					//partition matrix of distances to inner and outer points according to the median distance
 					int idxOfdistances2Length = sizeof(idxOfDistances2)/sizeof(idxOfDistances2[0]);
 
 					//partition matrix of distances to inner and outer points according to the median distance
-					//#pragma omp parallel for
 					for (int i = 0;  i < idxOfdistances2Length+1; ++i) {
 
 						if (distances2[i] >= median2 && distances2[i] != 0.0) { // distances[i] !=0.0 gia na vgazo ekso to vantage point
@@ -286,6 +285,7 @@ class VPtree
 
 					cout << "--------------ARXI ANADROMIS GIA TA PROTA INNER2------------------------"<<  endl <<endl<<endl <<endl;
 				//	omp_set_nested(1);
+				//	#pragma omp parallel
 					buildVPtree(innerIdx2, count_inner2, outerIdx2, count_outter2);
 					cout << "--------------TELOS ANADROMIS GIA TA PROTA INNER INNER2------------------------"<<  endl<<endl<<endl <<endl;
 
@@ -301,17 +301,21 @@ class VPtree
 
 int main()
 {
-	/* clock_t clock(void) returns the number of clock ticks
-		       elapsed since the program was launched.To get the number
-		       of seconds used by the CPU, you will need to divide by
-		       CLOCKS_PER_SEC.where CLOCKS_PER_SEC is 1000000 on typical
-		       32 bit system.  */
-	clock_t start, end;
+	 /* The function gettimeofday() can get the time as
+       well as timezone.
+       int gettimeofday(struct timeval *tv, struct timezone *tz);
+      The tv argument is a struct timeval and gives the
+      number of seconds and micro seconds since the Epoch.
+      struct timeval {
+               time_t      tv_sec;     // seconds
+               suseconds_t tv_usec;    // microseconds
+           };    */
+    struct timeval start, end;
+    // start timer.
+	gettimeofday(&start, NULL);
 
-	/* Recording the starting clock tick.*/
-	start = clock();
-
-   // float tempX[n][d];
+	 // unsync the I/O of C and C++.
+	ios_base::sync_with_stdio(false);
     int idxOfX[n];
 
    populateArray(X);
@@ -329,10 +333,10 @@ int main()
     	idxOfX[i] = i;
     }
 
-    float distances[n-1], tempDistances[n-1]; //compare with the
+    double distances[n-1], tempDistances[n-1]; //compare with the
     int idxOfdistances[n-1];
-    float pointToCalcDistance[d];
-    float vantagePoint[d];
+    double pointToCalcDistance[d];
+    double vantagePoint[d];
     int idxOfVantagePoint = n - 1;
 
 
@@ -343,7 +347,7 @@ int main()
     }
 
     //Calculate distances in parallel from vantage point to all other points
-	#pragma omp parallel for //parallelize only for the n-1 (distances association)
+//	#pragma omp parallel for //parallelize only for the n-1 (distances association)
     for (int i = 0; i < n-1; i++) {
         for (int j = 0; j < d; j++) {
         	pointToCalcDistance[j] = X[i][j];
@@ -356,7 +360,7 @@ int main()
 
     int n = sizeof(distances) / sizeof(distances[0]);
     int sizeoftempDistances = sizeof(distances) / sizeof(distances[0]);
-    float median = findMedian(tempDistances, sizeoftempDistances);
+    double median = findMedian(tempDistances, sizeoftempDistances);
     cout << "to median pou gurnaei i findMedian(tempDistences) einai: " << median <<endl;
 
 
@@ -369,7 +373,7 @@ int main()
 
 
 
-   //	#pragma omp parallel for
+   	//#pragma omp parallel for
     for (int i = 0;  i < idxOfdistancesLength; ++i) {
     	if (distances[i] >= median && distances[i] != 0.0) { //distances[i] !=0.0 gia na vgazo ekso to vantage point
 			outerIdx[count_outter] = idxOfX[i];
@@ -391,17 +395,22 @@ int main()
     cout << "==================================BEGGINING OF FIRST INNER AND OUTTER PARTITION============================================" <<endl;
 
     VPtree vptree;
+	//#pragma omp parallel
     vptree.buildVPtree(innerIdx,count_inner, outerIdx,count_outter);
 
+    cout << endl;
+    // stop timer.
+    gettimeofday(&end, NULL);
 
-    // Recording the end clock tick.
-	end = clock();
+    // Calculating total time taken by the program.
+	double time_taken;
 
-	// Calculating total time taken by the program.
-	double time_taken = double(end - start) / double(CLOCKS_PER_SEC);
+	time_taken = (end.tv_sec - start.tv_sec) * 1e6;
+	time_taken = (time_taken + (end.tv_usec -
+							  start.tv_usec)) * 1e-6;
+
 	cout << "Time taken by program is : " << fixed
-		 << time_taken << setprecision(5);
-	cout << " sec " << endl;
+		 << time_taken << setprecision(6);
+	cout << " sec" << endl;
     return 0;
 }
-
