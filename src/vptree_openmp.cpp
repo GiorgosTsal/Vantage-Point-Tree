@@ -1,5 +1,5 @@
 ////============================================================================
-//// Name        : vptree_sequential.cpp
+//// Name        : vptree_openmp.cpp
 //// Author      : Giorgos Tsalidis
 //// Version     :
 //// Copyright   : Your copyright notice
