@@ -12,7 +12,8 @@
 #include <cmath>
 #include <climits>
 #include <iomanip>
-#include "vptree.h"
+
+#include "../inc/vptree.h"
 
 using namespace std;
 
@@ -122,6 +123,10 @@ vptree * vptree::buildvp(double *X, int n, int d){
 	this->ptr_out->buildvpTREE(this->data, count_outter, d,outterMatrix);
 
 
+	//free memory
+	free(innerMatrix);
+	free(outterMatrix);
+	free(indexMatrix);
 
 
 }
@@ -217,9 +222,10 @@ vptree * vptree::buildvpTREE(double *X, int n, int d,int *myIndex){
 	this->ptr_in->buildvpTREE(this->data, count_inner, d,innerMatrix);
 	this->ptr_out->buildvpTREE(this->data, count_outter, d,outterMatrix);
 
-
-
-
+	//free memory
+	free(innerMatrix);
+	free(outterMatrix);
+	free(indexMatrix);
 
 }
 
@@ -231,6 +237,7 @@ void vptree::calcDistanceMatrix(double *distance,int size, int *index){
 		*(distance+i) = this->calculateDistance(this->data+(*(index+i))*d);
 	}
 }
+
 
 // This function calculates distances between tow points
 double vptree::calculateDistance(double *a)
