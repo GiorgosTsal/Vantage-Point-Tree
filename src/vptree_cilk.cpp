@@ -195,8 +195,7 @@ vptree * vptree::buildvpTREE(double *X, int n, int d,int *myIndex){
 //calculate this distances in parallel
 void vptree::calcDistanceMatrix(double *distance,int size, int *index){
 
-	#pragma omp parallel for
-	for(int i=0; i<size; i++){
+	cilk_for (int i=0; i<size; i++){
 		*(distance+i) = this->calculateDistance(this->data+(*(index+i))*d);
 	}
 }
