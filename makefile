@@ -5,6 +5,7 @@
 # Adapted from
 #  D.Floros' template and
 #  http://www.cs.swarthmore.edu/~newhall/unixhelp/howto_makefiles.html
+# https://www.partow.net/programming/makefile/index.html
 #  
 # ####################################################################
 # 
@@ -17,7 +18,7 @@
 SHELL := /bin/bash
 
 # define the C/C++ compiler to use,default here is clang
-CC = gcc-7
+CC = g++-7
 
 # define compile-time flags
 CFLAGS = -O3 -fcilkplus -fopenmp -Wall
