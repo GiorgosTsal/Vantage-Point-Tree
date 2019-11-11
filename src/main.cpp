@@ -15,6 +15,8 @@
 using namespace std;
 
 const int n = 10, d = 2;
+
+//Populate array/dataset with random double values
 void populateArray(double *array){
 	  for (int i = 0; i < n; i++) {
 			for (int j = 0; j < d; j++) {
@@ -22,6 +24,7 @@ void populateArray(double *array){
 			}
 	  }
 }
+//Helper to visualize results
 void printArray(double *array)
 {
     cout << __func__ << endl;
@@ -40,6 +43,7 @@ void printArray(double *array)
 int main()
 {
 
+	//struct to calculate execution time
 	struct timeval start, end;
 	// start timer.
 	gettimeofday(&start, NULL);
@@ -52,16 +56,10 @@ int main()
 	printArray(X);
 
 	vptree T(3);
-    //call of buildvp
+    //call of buildvp to build the tree
 	T.buildvp(X, n, d);
 
 
-
-    double *array = T.getVP(&T);
-
-    for (int j = 0; j < d; ++j){
-    	cout <<  *(array + j)<< endl;
-    }
 
 
     free(X);
