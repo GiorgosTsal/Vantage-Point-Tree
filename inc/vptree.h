@@ -85,8 +85,7 @@ public:
 	// This function calculates distances between two points	
 	double calculateDistance(double *a);
 	
-	//This function finds median using quickselect and kthSmallest value of an array(my median-th point on the array is splitting the data into two same count points(inner and outer)
-	double findMedian(double *distances, int sizeofDistances);
+	
 
 	//Set vantage-point subtree with points inside radius
 	void setInner(vptree * T);
@@ -101,7 +100,8 @@ public:
 
 };
 
-
+//This function finds median using quickselect and kthSmallest value of an array(my median-th point on the array is splitting the data into two same count points(inner and outer)
+	double findMedian(double *distances, int sizeofDistances);
 
 #endif
 
