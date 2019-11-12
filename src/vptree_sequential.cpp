@@ -17,7 +17,7 @@
 
 using namespace std;
 
-//construct with x as helper to recognize my tree ID
+//constructor
 vptree::vptree(int x) {
 	//create-set tree ID 
 	this->x = x;
@@ -109,6 +109,7 @@ vptree * vptree::buildvp(double *X, int n, int d){
 // Recursively builds the binary tree and returns a pointer to the vptree object
 //<parameter>*myindex: the index of the point in the original set
 vptree * vptree::buildvpTREE(double *X, int n, int d,int *myIndex){
+
 
 	this->data = X ;
 	this->n = n;

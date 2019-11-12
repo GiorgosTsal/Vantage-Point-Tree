@@ -5,8 +5,9 @@
 
 using namespace std;
 
-class vptree{
 
+
+class vptree{
 
 
 
@@ -17,6 +18,7 @@ public:
     int getX();
     int ptr_idx,n,d;
     double *data;
+    
 
 	vptree *ptr_in, *ptr_out;
 	double ptr_md, *ptr_vp;

@@ -98,9 +98,8 @@ vptree * vptree::buildvp(double *X, int n, int d){
 	
 	// Call buildVPTREE 2x one for inner and one of outter dataset
 
-	cilk_spawn this->ptr_in->buildvpTREE(this->data, count_inner, d,innerMatrix);
+	this->ptr_in->buildvpTREE(this->data, count_inner, d,innerMatrix);
 	this->ptr_out->buildvpTREE(this->data, count_outter, d,outterMatrix);
-	cilk_sync;
 
 	//Free memory
 	free(innerMatrix);
@@ -142,7 +141,7 @@ vptree * vptree::buildvpTREE(double *X, int n, int d,int *myIndex){
 
 
 	// Find Median(radius) of the current dist matrix with QuickSelect
-	double median = cilk_spawn findMedian(dist, n-1);
+	double median = findMedian(dist, n-1);
 	//Set median
 	this->ptr_md = median; // radius
 
@@ -183,23 +182,21 @@ vptree * vptree::buildvpTREE(double *X, int n, int d,int *myIndex){
 	cilk_spawn this->ptr_in->buildvpTREE(this->data, count_inner, d,innerMatrix);
 	this->ptr_out->buildvpTREE(this->data, count_outter, d,outterMatrix);
 	cilk_sync;
-
+	
 	//Free memory
 	free(innerMatrix);
 	free(outterMatrix);
 	free(indexMatrix);
 }
 
-
 //This function calculates distances for all points to an array using calculateDistance(double *a) as helper(every two points)
-//calculate this distances in parallel
 void vptree::calcDistanceMatrix(double *distance,int size, int *index){
 
-	cilk_for (int i=0; i<size; i++){
+	//cilk_for 
+	cilk_for(int i=0; i<size; i++){
 		*(distance+i) = this->calculateDistance(this->data+(*(index+i))*d);
 	}
 }
-
 
 // This function calculates distances between two points
 double vptree::calculateDistance(double *a)
@@ -346,8 +343,5 @@ void vptree::setVP(vptree * T){
 void vptree::setIDX(int index){
 	this->ptr_idx=index;
 }
-
-
-
 
 
