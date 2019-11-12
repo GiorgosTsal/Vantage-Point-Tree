@@ -110,7 +110,6 @@ vptree * vptree::buildvp(double *X, int n, int d){
 //<parameter>*myindex: the index of the point in the original set
 vptree * vptree::buildvpTREE(double *X, int n, int d,int *myIndex){
 
-
 	this->data = X ;
 	this->n = n;
 	this->d = d;

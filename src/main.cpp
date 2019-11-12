@@ -14,7 +14,7 @@
 
 using namespace std;
 
-const int n = 1000000, d = 200;
+const int n = 10000, d = 10;
 
 //Populate array/dataset with random double values
 void populateArray(double *array){
@@ -57,8 +57,9 @@ int main()
 	vptree T(3);
     //call of buildvp to build the tree
 	T.buildvp(X, n, d);
-
-
+	//cout << T.getInner() << endl;
+	//cout << T.getOuter() << endl;
+	//cout << T.getIDX() << endl;
 
 
     free(X);

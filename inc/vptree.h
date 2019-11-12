@@ -9,6 +9,7 @@ class vptree{
 
 
 
+
 public:
     int x;
     vptree(int x);
