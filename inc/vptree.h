@@ -45,7 +45,7 @@ public:
 	  \param node   A vantage-point tree
 	  \return The vantage-point subtree
 	*/
-	vptree * getInner();
+	vptree * getInner(vptree * T);
 
 	//! Return vantage-point subtree with points outside radius
 	/*!

@@ -14,7 +14,7 @@
 
 using namespace std;
 
-const int n = 100000, d = 10;
+const int n = 1000000, d = 2;
 
 //Populate array/dataset with random double values
 void populateArray(double *array){
@@ -55,12 +55,17 @@ int main()
 
 
 	vptree T(3);
+	//vptree tree = new vptree(3);
     //call of buildvp to build the tree
+	
 	T.buildvp(X, n, d);
+	//cout << "======================================================="<<endl;
+	//vptree *inChild = T.getInner(&T);
 
-
-
-
+	//cout << setprecision(5)<< T.getIDX(&T)/d << " kai " << inChild->getIDX(&T)/d <<endl;
+	//cout << inChild<< endl;
+	//cout << T.getOuter(&T)->getMD(&T)<< endl;
+	
     free(X);
     // stop timer.
     gettimeofday(&end, NULL);

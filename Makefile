@@ -5,7 +5,6 @@
 # Adapted from
 #  D.Floros' template and
 #  http://www.cs.swarthmore.edu/~newhall/unixhelp/howto_makefiles.html
-# https://www.partow.net/programming/makefile/index.html
 # https://www.youtube.com/watch?v=i3tYp88YHbI
 #  
 # ####################################################################
@@ -18,7 +17,7 @@
 # define the shell to bash
 SHELL := /bin/bash
 
-# define the C/C++ compiler to use,default here is clang
+# define the C/C++ compiler to use,default here is c++lang
 CC = g++-7
 
 # define compile-time flags

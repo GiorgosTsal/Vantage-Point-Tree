@@ -37,8 +37,6 @@ int vptree::getX(){
 vptree * vptree::buildvp(double *X, int n, int d){
 
 
-	this->getX();
-
 	this->data = X ; //theto ston data ton X
 	this->n = n;
 	this->d = d;
@@ -65,7 +63,7 @@ vptree * vptree::buildvp(double *X, int n, int d){
 	double median = findMedian(dist, n-1);
 	//Set median
 	this->ptr_md = median; // radius
-
+	//cout << "makis: " <<  median <<endl; // radius
 	// Splitting data
     //Partition matrix of distances to inner and outer points according to the median distance
     int count_inner = 0 ;
@@ -101,9 +99,9 @@ vptree * vptree::buildvp(double *X, int n, int d){
 	this->ptr_out->buildvpTREE(this->data, count_outter, d,outterMatrix);
 
 	//Free memory
-	free(innerMatrix);
-	free(outterMatrix);
-	free(indexMatrix);
+	//free(innerMatrix);
+	//free(outterMatrix);
+	//free(indexMatrix);
 }
 
 // Recursively builds the binary tree and returns a pointer to the vptree object
@@ -122,6 +120,7 @@ vptree * vptree::buildvpTREE(double *X, int n, int d,int *myIndex){
 	}
 
 	this->ptr_idx = d*(*(myIndex+(n-1))); // index of the point in the original set
+	//cout << "sakis:" << this->ptr_idx << endl;	
 	this->ptr_vp =  X+this->ptr_idx; // vantage point
 
 	// Initialize-allocate space for distances & indexes
@@ -143,6 +142,7 @@ vptree * vptree::buildvpTREE(double *X, int n, int d,int *myIndex){
 	double median = findMedian(dist, n-1);
 	//Set median
 	this->ptr_md = median; // radius
+	//cout << "makis: " <<  median <<endl; // radius
 
 	// Splitting data
     //Partition matrix of distances to inner and outer points according to the median distance
@@ -171,11 +171,13 @@ vptree * vptree::buildvpTREE(double *X, int n, int d,int *myIndex){
 	vptree out(this->x*10+2);
 
 	// Set inner,outer pointers
+
+	
 	this->ptr_in = &in;
 	this->ptr_out = &out;
 
-
-
+	//cout << "this->ptr_in: " <<this->ptr_in << endl;
+	//cout << "this->ptr_out: " <<this->ptr_out << endl;
 	// Call buildVPTREE 2x one for inner and one of outter dataset
 
 	this->ptr_in->buildvpTREE(this->data, count_inner, d,innerMatrix);
@@ -185,6 +187,8 @@ vptree * vptree::buildvpTREE(double *X, int n, int d,int *myIndex){
 	free(innerMatrix);
 	free(outterMatrix);
 	free(indexMatrix);
+
+
 }
 
 //This function calculates distances for all points to an array using calculateDistance(double *a) as helper(every two points)
@@ -301,7 +305,7 @@ double findMedian(double *distances, int sizeofDistances){
 
 
 // Return vantage-point subtree with points inside radius
-vptree * vptree::getInner(){
+vptree * vptree::getInner(vptree * T){
 	return this->ptr_in;
 }
 // Return vantage-point subtree with points outside radius

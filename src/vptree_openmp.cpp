@@ -175,6 +175,17 @@ vptree * vptree::buildvpTREE(double *X, int n, int d,int *myIndex){
 	this->ptr_out = &out;
 
 
+	//  	#pragma omp parallel 
+//        {
+            //2 sections with thread creation for inner and outer function call
+//            #pragma omp sections nowait
+//            {
+//               #pragma omp section
+//               this->ptr_in->buildvpTREE(this->data, count_inner, d,innerMatrix);
+//               #pragma omp section
+//              	this->ptr_out->buildvpTREE(this->data, count_outter, d,outterMatrix);
+//           }
+//        }
 
 	// Call buildVPTREE 2x one for inner and one of outter dataset
 
@@ -304,7 +315,7 @@ double findMedian(double *distances, int sizeofDistances){
 }
 
 // Return vantage-point subtree with points inside radius
-vptree * vptree::getInner(){
+vptree * vptree::getInner(vptree * T){
 	return this->ptr_in;
 }
 // Return vantage-point subtree with points outside radius
@@ -343,7 +354,6 @@ void vptree::setVP(vptree * T){
 void vptree::setIDX(int index){
 	this->ptr_idx=index;
 }
-
 
 
 

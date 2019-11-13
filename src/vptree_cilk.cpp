@@ -304,7 +304,7 @@ double findMedian(double *distances, int sizeofDistances){
 
 
 // Return vantage-point subtree with points inside radius
-vptree * vptree::getInner(){
+vptree * vptree::getInner(vptree * T){
 	return this->ptr_in;
 }
 // Return vantage-point subtree with points outside radius
