@@ -54,15 +54,18 @@ int main()
 	populateArray(X);
 
 
-	vptree T(3);
+	vptree *T;
 	//vptree tree = new vptree(3);
     //call of buildvp to build the tree
 	
-	T.buildvp(X, n, d);
+	T=buildvp(X, n, d);
 	cout << "======================================================="<<endl;
-	vptree *inChild = T.getInner(&T);
+	vptree *inChild = getInner(T);
+	
+	//
 
-	cout << setprecision(5)<< T.getIDX(&T)/d << " kai " << inChild->getIDX(&T)/d <<endl;
+	cout << setprecision(5)<< getIDX(T)/d << " kai " << getIDX(inChild)/d <<endl;
+
 	//cout << inChild<< endl;
 	//cout << T.getOuter(&T)->getMD(&T)<< endl;
 	
