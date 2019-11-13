@@ -108,7 +108,7 @@ vptree * vptree::buildvp(double *X, int n, int d){
 //<parameter>*myindex: the index of the point in the original set
 vptree * vptree::buildvpTREE(double *X, int n, int d,int *myIndex){
 
-
+		
 	this->data = X ;
 	this->n = n;
 	this->d = d;
@@ -120,9 +120,9 @@ vptree * vptree::buildvpTREE(double *X, int n, int d,int *myIndex){
 	}
 
 	this->ptr_idx = d*(*(myIndex+(n-1))); // index of the point in the original set
-	//cout << "sakis:" << this->ptr_idx << endl;	
+	cout << "gia to object me ptr_idx: " << this->ptr_idx/d <<endl;	
 	this->ptr_vp =  X+this->ptr_idx; // vantage point
-
+	cout << "gia to object me ptr_vp: " << this->ptr_vp <<endl;	
 	// Initialize-allocate space for distances & indexes
 	int inOutSize = n/2 + 1;
 	double *dist = (double *)malloc((n-1) * sizeof(double));
@@ -183,6 +183,7 @@ vptree * vptree::buildvpTREE(double *X, int n, int d,int *myIndex){
 	this->ptr_in->buildvpTREE(this->data, count_inner, d,innerMatrix);
 	this->ptr_out->buildvpTREE(this->data, count_outter, d,outterMatrix);
 
+	return this;
 	//Free memory
 	free(innerMatrix);
 	free(outterMatrix);
