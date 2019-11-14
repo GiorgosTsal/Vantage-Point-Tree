@@ -186,6 +186,17 @@ vptree * vptree::buildvpTREE(double *X, int n, int d,int *myIndex){
 	
 	// Call buildVPTREE 2x one for inner and one of outter dataset
 
+  	#pragma omp parallel 
+        {
+           //2 sections with thread creation for inner and outer function call
+            #pragma omp sections nowait
+            {
+               #pragma omp section
+               this->ptr_in->buildvpTREE(this->data, count_inner, d,innerMatrix);
+               #pragma omp section
+              	this->ptr_out->buildvpTREE(this->data, count_outter, d,outterMatrix);
+           }
+        }
 	this->ptr_in->buildvpTREE(this->data, count_inner, d,innerMatrix);
 	this->ptr_out->buildvpTREE(this->data, count_outter, d,outterMatrix);
 
