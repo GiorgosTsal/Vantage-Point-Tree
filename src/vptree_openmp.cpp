@@ -1,9 +1,9 @@
 //============================================================================
-// Name        : vptree_openmp.cpp
+// Name        : vptree_sequential.cpp
 // Author      : Giorgos Tsalidis
 // Version     :
 // Copyright   : Your copyright notice
-// Description : Vantage Point Tree OpenMP API implementation in C++
+// Description : Vantage Point Tree OpenMP implementation in C++
 //============================================================================
 
 #include <iostream>
@@ -17,7 +17,7 @@
 
 using namespace std;
 
-//construct with x as helper to recognize my tree ID
+//constructor
 vptree::vptree(int x) {
 	//create-set tree ID 
 	this->x = x;
@@ -34,17 +34,16 @@ int vptree::getX(){
 
 
 
-vptree * vptree::buildvp(double *X, int n, int d){
+vptree * buildvp(double *X, int n, int d){
 
 
-	this->getX();
+	vptree *T = new vptree(3);
+	T->data = X ; //theto ston data ton X
+	T->n = n;
+	T->d = d;
 
-	this->data = X ; //theto ston data ton X
-	this->n = n;
-	this->d = d;
-
-	this->ptr_idx = d*(n-1); // index
-	this->ptr_vp =  X+this->ptr_idx; // vantage point
+	T->ptr_idx = d*(n-1); // index
+	T->ptr_vp =  X+T->ptr_idx; // vantage point
 
 	// Initialize-allocate space for distances & indexes
 	int inOutSize = n/2 + 1;
@@ -59,12 +58,12 @@ vptree * vptree::buildvp(double *X, int n, int d){
 	}
 
 	// Calculate the distances from the vantage point to all other points of the current dataset(X) and store it on an array
-	this->calcDistanceMatrix(dist,n-1,indexMatrix);
+	T->calcDistanceMatrix(dist,n-1,indexMatrix);
 	
 	// Find Median(radius) of the current dist matrix with QuickSelect
 	double median = findMedian(dist, n-1);
 	//Set median
-	this->ptr_md = median; // radius
+	T->ptr_md = median; // radius
 
 	// Splitting data
     //Partition matrix of distances to inner and outer points according to the median distance
@@ -86,44 +85,52 @@ vptree * vptree::buildvp(double *X, int n, int d){
 	free(dist);
 
 	// Create 2 vptree obj- one for inner and one for outter 
-	vptree in(this->x*10+1);
-	vptree out(this->x*10+2);
+	vptree *in = new vptree(T->x*10+1);
+	vptree *out = new vptree(T->x*10+2);
 
 
 	// Set inner,outer pointers
-	this->ptr_in = &in;
-	this->ptr_out = &out;
+	T->ptr_in = in;
+	T->ptr_out = out;
 
 	
 	// Call buildVPTREE 2x one for inner and one of outter dataset
 
-	this->ptr_in->buildvpTREE(this->data, count_inner, d,innerMatrix);
-	this->ptr_out->buildvpTREE(this->data, count_outter, d,outterMatrix);
-
+	T->ptr_in->buildvpTREE(T->data, count_inner, d,innerMatrix);
+	T->ptr_out->buildvpTREE(T->data, count_outter, d,outterMatrix);
+	return T;
 	//Free memory
-	free(innerMatrix);
-	free(outterMatrix);
-	free(indexMatrix);
+	//free(innerMatrix);
+	//free(outterMatrix);
+	//free(indexMatrix);
 }
 
 // Recursively builds the binary tree and returns a pointer to the vptree object
 //<parameter>*myindex: the index of the point in the original set
 vptree * vptree::buildvpTREE(double *X, int n, int d,int *myIndex){
 
-
+		
 	this->data = X ;
 	this->n = n;
 	this->d = d;
 
 	// Set break
-	if(n<=1){
-
+	if(n<=0){
+		return NULL;
+	}
+	if(n==1){
+		this->ptr_md=0;
+		this->ptr_idx=d*(*(myIndex+(n-1)));
+		this->ptr_vp =  X+this->ptr_idx;
+		this->ptr_out=NULL;
+		this->ptr_in=NULL;
 		return this;
 	}
 
 	this->ptr_idx = d*(*(myIndex+(n-1))); // index of the point in the original set
+	
 	this->ptr_vp =  X+this->ptr_idx; // vantage point
-
+	
 	// Initialize-allocate space for distances & indexes
 	int inOutSize = n/2 + 1;
 	double *dist = (double *)malloc((n-1) * sizeof(double));
@@ -167,40 +174,31 @@ vptree * vptree::buildvpTREE(double *X, int n, int d,int *myIndex){
 
 
 	// Create 2 vptree obj- one for inner and one for outter 
-	vptree in(this->x*10+1);
-	vptree out(this->x*10+2);
+	vptree *in= new vptree(this->x*10+1);
+	vptree *out = new vptree(this->x*10+2);
 
 	// Set inner,outer pointers
-	this->ptr_in = &in;
-	this->ptr_out = &out;
 
+	
+	this->ptr_in = in;
+	this->ptr_out = out;
 
-	//  	#pragma omp parallel 
-//        {
-            //2 sections with thread creation for inner and outer function call
-//            #pragma omp sections nowait
-//            {
-//               #pragma omp section
-//               this->ptr_in->buildvpTREE(this->data, count_inner, d,innerMatrix);
-//               #pragma omp section
-//              	this->ptr_out->buildvpTREE(this->data, count_outter, d,outterMatrix);
-//           }
-//        }
-
+	
 	// Call buildVPTREE 2x one for inner and one of outter dataset
 
 	this->ptr_in->buildvpTREE(this->data, count_inner, d,innerMatrix);
 	this->ptr_out->buildvpTREE(this->data, count_outter, d,outterMatrix);
 
+	return this;
 	//Free memory
 	free(innerMatrix);
 	free(outterMatrix);
 	free(indexMatrix);
+
+
 }
 
-
 //This function calculates distances for all points to an array using calculateDistance(double *a) as helper(every two points)
-//calculate this distances in parallel
 void vptree::calcDistanceMatrix(double *distance,int size, int *index){
 
 	#pragma omp parallel for
@@ -208,7 +206,6 @@ void vptree::calcDistanceMatrix(double *distance,int size, int *index){
 		*(distance+i) = this->calculateDistance(this->data+(*(index+i))*d);
 	}
 }
-
 
 // This function calculates distances between two points
 double vptree::calculateDistance(double *a)
@@ -314,25 +311,26 @@ double findMedian(double *distances, int sizeofDistances){
 	 return median;
 }
 
+
 // Return vantage-point subtree with points inside radius
-vptree * vptree::getInner(vptree * T){
-	return this->ptr_in;
+vptree * getInner(vptree * T){
+	return T->ptr_in;
 }
 // Return vantage-point subtree with points outside radius
-vptree * vptree::getOuter(vptree * T){
-	return this->ptr_out;
+vptree * getOuter(vptree * T){
+	return T->ptr_out;
 }
 // Return radius(median of distances to vantage point)
-double vptree::getMD(vptree * T){
-	return this->ptr_md;
+double getMD(vptree * T){
+	return T->ptr_md;
 }
 //Retunrs coordinates of the vantage point(ti thesi mnimis tou)
-double * vptree::getVP(vptree * T){
-	return this->ptr_vp;
+double * getVP(vptree * T){
+	return T->ptr_vp;
 }
 //Return the index in my dataset
-int vptree::getIDX(vptree * T){
-	return this->ptr_idx;
+int getIDX(vptree * T){
+	return T->ptr_idx;
 }
 //Set vantage-point subtree with points inside radius
 void vptree::setInner(vptree * T){
@@ -354,6 +352,7 @@ void vptree::setVP(vptree * T){
 void vptree::setIDX(int index){
 	this->ptr_idx=index;
 }
+
 
 
 

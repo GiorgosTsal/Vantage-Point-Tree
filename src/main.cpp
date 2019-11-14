@@ -14,7 +14,7 @@
 
 using namespace std;
 
-const int n = 10, d = 2;
+const int n = 1000, d = 10;
 
 //Populate array/dataset with random double values
 void populateArray(double *array){
@@ -59,15 +59,6 @@ int main()
     //call of buildvp to build the tree
 	
 	T=buildvp(X, n, d);
-	cout << "======================================================="<<endl;
-	vptree *inChild = getInner(T);
-	
-	//
-
-	cout << setprecision(5)<< getIDX(T)/d << " kai " << getIDX(inChild)/d <<endl;
-
-	//cout << inChild<< endl;
-	//cout << T.getOuter(&T)->getMD(&T)<< endl;
 	
     free(X);
     // stop timer.

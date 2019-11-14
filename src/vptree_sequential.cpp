@@ -64,7 +64,7 @@ vptree * buildvp(double *X, int n, int d){
 	double median = findMedian(dist, n-1);
 	//Set median
 	T->ptr_md = median; // radius
-	//cout << "makis: " <<  median <<endl; // radius
+
 	// Splitting data
     //Partition matrix of distances to inner and outer points according to the median distance
     int count_inner = 0 ;
@@ -128,9 +128,9 @@ vptree * vptree::buildvpTREE(double *X, int n, int d,int *myIndex){
 	}
 
 	this->ptr_idx = d*(*(myIndex+(n-1))); // index of the point in the original set
-	cout << "gia to object me ptr_idx: " << this->ptr_idx/d <<endl;	
+	
 	this->ptr_vp =  X+this->ptr_idx; // vantage point
-	cout << "gia to object me ptr_vp: " << this->ptr_vp <<endl;	
+	
 	// Initialize-allocate space for distances & indexes
 	int inOutSize = n/2 + 1;
 	double *dist = (double *)malloc((n-1) * sizeof(double));
@@ -150,7 +150,6 @@ vptree * vptree::buildvpTREE(double *X, int n, int d,int *myIndex){
 	double median = findMedian(dist, n-1);
 	//Set median
 	this->ptr_md = median; // radius
-	//cout << "makis: " <<  median <<endl; // radius
 
 	// Splitting data
     //Partition matrix of distances to inner and outer points according to the median distance
@@ -184,8 +183,7 @@ vptree * vptree::buildvpTREE(double *X, int n, int d,int *myIndex){
 	this->ptr_in = in;
 	this->ptr_out = out;
 
-	//cout << "this->ptr_in: " <<this->ptr_in << endl;
-	//cout << "this->ptr_out: " <<this->ptr_out << endl;
+	
 	// Call buildVPTREE 2x one for inner and one of outter dataset
 
 	this->ptr_in->buildvpTREE(this->data, count_inner, d,innerMatrix);
