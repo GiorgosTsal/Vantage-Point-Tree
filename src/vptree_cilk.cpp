@@ -36,8 +36,6 @@ int vptree::getX(){
     return x;
 }
 
-
-
 vptree * buildvp(double *X, int n, int d){
 
 
@@ -70,9 +68,9 @@ vptree * buildvp(double *X, int n, int d){
 	T->ptr_md = median; // radius
 
 	// Splitting data
-    //Partition matrix of distances to inner and outer points according to the median distance
-    int count_inner = 0 ;
-    int count_outter = 0 ;
+	//Partition matrix of distances to inner and outer points according to the median distance
+	int count_inner = 0 ;
+	int count_outter = 0 ;
 
 	for (int i = 0;  i < (n-1); i++) { //until n-1 to leave out the vantage point tree because as assume every time tha the vantage point is the last point(n-1) of my dataset
 
@@ -103,10 +101,6 @@ vptree * buildvp(double *X, int n, int d){
 	T->ptr_in->buildvpTREE(T->data, count_inner, d,innerMatrix);
 	T->ptr_out->buildvpTREE(T->data, count_outter, d,outterMatrix);
 	return T;
-	//Free memory
-	//free(innerMatrix);
-	//free(outterMatrix);
-	//free(indexMatrix);
 }
 
 // Recursively builds the binary tree and returns a pointer to the vptree object
@@ -157,10 +151,10 @@ vptree * vptree::buildvpTREE(double *X, int n, int d,int *myIndex){
 
 
 	// Splitting data
-    //Partition matrix of distances to inner and outer points according to the median distance
-   // Create arrays for inner and outer points
-    int count_inner = 0 ;
-    int count_outter = 0 ;
+	//Partition matrix of distances to inner and outer points according to the median distance
+	// Create arrays for inner and outer points
+	int count_inner = 0 ;
+	int count_outter = 0 ;
 
 	for (int i = 0;  i < (n-1); i++) {
 
@@ -176,22 +170,16 @@ vptree * vptree::buildvpTREE(double *X, int n, int d,int *myIndex){
 	// Delete distance to free memory
 	free(dist);
 
-
-
 	// Create 2 vptree obj- one for inner and one for outter 
 	vptree *in= new vptree(this->x*10+1);
 	vptree *out = new vptree(this->x*10+2);
 
 	// Set inner,outer pointers
-
-	
 	this->ptr_in = in;
 	this->ptr_out = out;
 
 	// Call buildVPTREE 2x one for inner and one of outter dataset
-
-	
-	 if(n*d>2*LIMIT){
+	if(n*d>2*LIMIT){
          	cilk_spawn this->ptr_in->buildvpTREE(this->data, count_inner, d,innerMatrix);
 		this->ptr_out->buildvpTREE(this->data, count_outter, d,outterMatrix);
         }
@@ -202,12 +190,6 @@ vptree * vptree::buildvpTREE(double *X, int n, int d,int *myIndex){
 
 	cilk_sync;
 	return this;
-	//Free memory
-	free(innerMatrix);
-	free(outterMatrix);
-	free(indexMatrix);
-
-
 }
 
 //This function calculates distances for all points to an array using calculateDistance(double *a) as helper(every two points)
@@ -369,8 +351,4 @@ void vptree::setVP(vptree * T){
 void vptree::setIDX(int index){
 	this->ptr_idx=index;
 }
-
-
-
-
 

@@ -101,10 +101,6 @@ vptree * buildvp(double *X, int n, int d){
 	T->ptr_in->buildvpTREE(T->data, count_inner, d,innerMatrix);
 	T->ptr_out->buildvpTREE(T->data, count_outter, d,outterMatrix);
 	return T;
-	//Free memory
-	//free(innerMatrix);
-	//free(outterMatrix);
-	//free(indexMatrix);
 }
 
 // Recursively builds the binary tree and returns a pointer to the vptree object
@@ -173,19 +169,14 @@ vptree * vptree::buildvpTREE(double *X, int n, int d,int *myIndex){
 	// Delete distance to free memory
 	free(dist);
 
-
-
 	// Create 2 vptree obj- one for inner and one for outter 
 	vptree *in= new vptree(this->x*10+1);
 	vptree *out = new vptree(this->x*10+2);
 
-	// Set inner,outer pointers
-
-	
+	// Set inner,outer pointers	
 	this->ptr_in = in;
 	this->ptr_out = out;
 
-	
 
 	// Call buildVPTREE 2x one for inner and one of outter dataset (if n*d>LIMIT do it parallel else serial)
 	if( n*d>=LIMIT*2){
@@ -208,12 +199,6 @@ vptree * vptree::buildvpTREE(double *X, int n, int d,int *myIndex){
             }
 
 	return this;
-	//Free memory
-	free(innerMatrix);
-	free(outterMatrix);
-	free(indexMatrix);
-
-
 }
 
 //This function calculates distances for all points to an array using calculateDistance(double *a) as helper(every two points)
@@ -376,8 +361,4 @@ void vptree::setVP(vptree * T){
 void vptree::setIDX(int index){
 	this->ptr_idx=index;
 }
-
-
-
-
 

@@ -14,7 +14,7 @@
 
 using namespace std;
 
-const int n = 100000, d = 10;
+const int n = 1000000, d = 10;
 
 //Populate array/dataset with random double values
 void populateArray(double *array){

@@ -66,9 +66,9 @@ vptree * buildvp(double *X, int n, int d){
 	T->ptr_md = median; // radius
 
 	// Splitting data
-    //Partition matrix of distances to inner and outer points according to the median distance
-    int count_inner = 0 ;
-    int count_outter = 0 ;
+	//Partition matrix of distances to inner and outer points according to the median distance
+	int count_inner = 0 ;
+	int count_outter = 0 ;
 
 	for (int i = 0;  i < (n-1); i++) { //until n-1 to leave out the vantage point tree because as assume every time tha the vantage point is the last point(n-1) of my dataset
 
@@ -99,10 +99,6 @@ vptree * buildvp(double *X, int n, int d){
 	T->ptr_in->buildvpTREE(T->data, count_inner, d,innerMatrix);
 	T->ptr_out->buildvpTREE(T->data, count_outter, d,outterMatrix);
 	return T;
-	//Free memory
-	//free(innerMatrix);
-	//free(outterMatrix);
-	//free(indexMatrix);
 }
 
 // Recursively builds the binary tree and returns a pointer to the vptree object
@@ -152,10 +148,10 @@ vptree * vptree::buildvpTREE(double *X, int n, int d,int *myIndex){
 	this->ptr_md = median; // radius
 
 	// Splitting data
-    //Partition matrix of distances to inner and outer points according to the median distance
-   // Create arrays for inner and outer points
-    int count_inner = 0 ;
-    int count_outter = 0 ;
+	//Partition matrix of distances to inner and outer points according to the median distance
+	// Create arrays for inner and outer points
+	int count_inner = 0 ;
+	int count_outter = 0 ;
 
 	for (int i = 0;  i < (n-1); i++) {
 
@@ -190,12 +186,6 @@ vptree * vptree::buildvpTREE(double *X, int n, int d,int *myIndex){
 	this->ptr_out->buildvpTREE(this->data, count_outter, d,outterMatrix);
 
 	return this;
-	//Free memory
-	free(innerMatrix);
-	free(outterMatrix);
-	free(indexMatrix);
-
-
 }
 
 //This function calculates distances for all points to an array using calculateDistance(double *a) as helper(every two points)
