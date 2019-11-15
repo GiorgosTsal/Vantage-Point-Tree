@@ -197,8 +197,6 @@ vptree * vptree::buildvpTREE(double *X, int n, int d,int *myIndex){
               	this->ptr_out->buildvpTREE(this->data, count_outter, d,outterMatrix);
            }
         }
-	this->ptr_in->buildvpTREE(this->data, count_inner, d,innerMatrix);
-	this->ptr_out->buildvpTREE(this->data, count_outter, d,outterMatrix);
 
 	return this;
 	//Free memory
