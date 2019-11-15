@@ -16,6 +16,9 @@
 #include <cilk/cilk_api.h>
 #include "../inc/vptree.h"
 
+
+#define LIMIT 20000 
+
 using namespace std;
 
 //constructor
@@ -187,8 +190,16 @@ vptree * vptree::buildvpTREE(double *X, int n, int d,int *myIndex){
 
 	// Call buildVPTREE 2x one for inner and one of outter dataset
 
-	cilk_spawn this->ptr_in->buildvpTREE(this->data, count_inner, d,innerMatrix);
-	this->ptr_out->buildvpTREE(this->data, count_outter, d,outterMatrix);
+	
+	 if(n*d>2*LIMIT){
+         	cilk_spawn this->ptr_in->buildvpTREE(this->data, count_inner, d,innerMatrix);
+		this->ptr_out->buildvpTREE(this->data, count_outter, d,outterMatrix);
+        }
+        else{
+		this->ptr_in->buildvpTREE(this->data, count_inner, d,innerMatrix);
+		this->ptr_out->buildvpTREE(this->data, count_outter, d,outterMatrix);
+        }
+
 	cilk_sync;
 	return this;
 	//Free memory
@@ -202,8 +213,14 @@ vptree * vptree::buildvpTREE(double *X, int n, int d,int *myIndex){
 //This function calculates distances for all points to an array using calculateDistance(double *a) as helper(every two points)
 void vptree::calcDistanceMatrix(double *distance,int size, int *index){
 
-	cilk_for(int i=0; i<size; i++){
-		*(distance+i) = this->calculateDistance(this->data+(*(index+i))*d);
+	if((size*d)>LIMIT){
+		cilk_for(int i=0; i<size; i++){
+			*(distance+i) = this->calculateDistance(this->data+(*(index+i))*d);
+		}
+	}else{  //switch to serial
+		for(int i=0; i<size; i++){
+			*(distance+i) = this->calculateDistance(this->data+(*(index+i))*d);
+		}
 	}
 }
 
