@@ -58,7 +58,6 @@ all: $(addprefix $(MAIN)_, $(TYPES))
 lib: $(addsuffix .a, $(addprefix $(SRC)_, $(TYPES)))
 
 $(MAIN)_%: $(MAIN).c $(SRC)_%.a
-	mkdir -p lib
 	$(CC) $(CFLAGS) $(INCLUDES) -o $(SRCDIR)/$@ $(word 1,$^) $(LIBDIR)/$(word 2,$^) $(LDFLAGS) $(LIBS)
 
 # this is a suffix replacement rule for building .o's from .c's

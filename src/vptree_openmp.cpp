@@ -12,8 +12,10 @@
 #include <cmath>
 #include <climits>
 #include <iomanip>
-
 #include "../inc/vptree.h"
+
+#define LIMIT 100000
+
 
 using namespace std;
 
@@ -36,7 +38,7 @@ int vptree::getX(){
 
 vptree * buildvp(double *X, int n, int d){
 
-
+	// omp_set_nested(1);// enable nested parallelism
 	vptree *T = new vptree(3);
 	T->data = X ; //theto ston data ton X
 	T->n = n;
@@ -184,19 +186,26 @@ vptree * vptree::buildvpTREE(double *X, int n, int d,int *myIndex){
 	this->ptr_out = out;
 
 	
-	// Call buildVPTREE 2x one for inner and one of outter dataset
 
-  	#pragma omp parallel 
-        {
-           //2 sections with thread creation for inner and outer function call
-            #pragma omp sections nowait
-            {
-               #pragma omp section
-               this->ptr_in->buildvpTREE(this->data, count_inner, d,innerMatrix);
-               #pragma omp section
-              	this->ptr_out->buildvpTREE(this->data, count_outter, d,outterMatrix);
-           }
+	// Call buildVPTREE 2x one for inner and one of outter dataset (if n*d>LIMIT do it parallel else serial)
+	if( n*d>=LIMIT*2){
+                //parallel section
+	  	#pragma omp parallel 
+		{
+		   //2 sections with thread creation for inner and outer function call
+		    #pragma omp sections nowait
+		    {
+		       #pragma omp section
+		       this->ptr_in->buildvpTREE(this->data, count_inner, d,innerMatrix);
+		       #pragma omp section
+		      this->ptr_out->buildvpTREE(this->data, count_outter, d,outterMatrix);
+		   }
         }
+            }
+            else{//else serial
+                this->ptr_in->buildvpTREE(this->data, count_inner, d,innerMatrix);
+                this->ptr_out->buildvpTREE(this->data, count_outter, d,outterMatrix);
+            }
 
 	return this;
 	//Free memory
@@ -209,11 +218,17 @@ vptree * vptree::buildvpTREE(double *X, int n, int d,int *myIndex){
 
 //This function calculates distances for all points to an array using calculateDistance(double *a) as helper(every two points)
 void vptree::calcDistanceMatrix(double *distance,int size, int *index){
-
-	#pragma omp parallel for
-	for(int i=0; i<size; i++){
+	if((size*d)>LIMIT){
+		#pragma omp parallel for
+		for(int i=0; i<size; i++){
 		*(distance+i) = this->calculateDistance(this->data+(*(index+i))*d);
+		}
+	}else{ 
+		for(int i=0; i<size; i++){
+		*(distance+i) = this->calculateDistance(this->data+(*(index+i))*d);
+		}
 	}
+
 }
 
 // This function calculates distances between two points
